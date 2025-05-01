@@ -68,7 +68,7 @@ const BaiaDetalhesPage = () => {
       </div>
 
       <div className="mb-4">
-        <Button onClick={() => navigate(`/cadastro/animais/novo?baiaId=${id}`)}>
+        <Button onClick={() => navigate(`/cadastro/animais/novo?baiaId=${id}&setorId=${baia.idSetor}`)}>
           <Plus className="mr-2" />
           Novo Animal
         </Button>

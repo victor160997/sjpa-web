@@ -9,18 +9,18 @@ import { useApp } from '@/contexts/AppContext';
 import { TipoAnimal } from '@/types';
 
 const SetorDetalhesPage = () => {
-  const { id } = useParams();
+  const { id: idSetor } = useParams();
   const navigate = useNavigate();
   const { setores, baias, animais, loading, fetchBaias, fetchAnimais } = useApp();
 
-  const setor = setores.find(s => s.id === id);
+  const setor = setores.find(s => s.id === idSetor);
 
   useEffect(() => {
-    if (id) {
-      fetchBaias(id);
-      fetchAnimais(id);
+    if (idSetor) {
+      fetchBaias(idSetor);
+      fetchAnimais(idSetor);
     }
-  }, [id]);
+  }, [idSetor]);
 
   if (!setor) return <div>Setor não encontrado</div>;
 
@@ -39,7 +39,7 @@ const SetorDetalhesPage = () => {
         <h1 className="text-2xl font-bold">Setor {setor.nome}</h1>
         <Button
           variant="outline"
-          onClick={() => navigate(`/cadastro/setores/${id}/editar`)}
+          onClick={() => navigate(`/cadastro/setores/${idSetor}/editar`)}
         >
           <Edit className="mr-2" />
           Editar
@@ -54,7 +54,7 @@ const SetorDetalhesPage = () => {
 
         <TabsContent value="baias">
           <div className="mb-4">
-            <Button onClick={() => navigate(`/cadastro/baias/novo?setorId=${id}`)}>
+            <Button onClick={() => navigate(`/cadastro/baias/novo?setorId=${idSetor}`)}>
               <Plus className="mr-2" />
               Nova Baia
             </Button>
@@ -77,7 +77,8 @@ const SetorDetalhesPage = () => {
                   </CardHeader>
                   <CardContent className="p-4 pt-0">
                     <p className="text-sm text-gray-600">
-                      {baia.animais?.length || 0} animais •{' '}
+                      {animais.filter(animal => animal.idBaia === baia.id).length
+                        || 0} animais •{' '}
                       {baia.tipo === TipoAnimal.CACHORRO ? 'Cachorros' : 'Gatos'}
                     </p>
                     {baia.observacao && (
@@ -92,7 +93,7 @@ const SetorDetalhesPage = () => {
 
         <TabsContent value="animais">
           <div className="mb-4">
-            <Button onClick={() => navigate(`/cadastro/animais/novo?setorId=${id}`)}>
+            <Button onClick={() => navigate(`/cadastro/animais/novo?setorId=${idSetor}`)}>
               <Plus className="mr-2" />
               Novo Animal
             </Button>

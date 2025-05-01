@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { useApp } from '@/contexts/AppContext';
 import { Baia, Setor, TipoAnimal } from '@/types';
+import { useToast } from '@/hooks/use-toast';
 
 const formSchema = z.object({
   idSetor: z.string().min(1, 'Setor é obrigatório'),
@@ -24,6 +25,8 @@ const BaiaFormPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { setores, baias, addBaia, updateBaia } = useApp();
+
+  const { toast } = useToast();
 
   const baia = baias.find(b => b.id === id);
 
@@ -50,7 +53,7 @@ const BaiaFormPage = () => {
 
   const onSubmit = async (data: BaiaFormData) => {
     try {
-      if (id) {
+      if (id !== "novo") {
         await updateBaia(id, {
           idSetor: data.idSetor,
           numeroBaia: Number(data.numeroBaia),
@@ -65,6 +68,9 @@ const BaiaFormPage = () => {
           tipo: Number(data.tipo) as TipoAnimal,
         });
       }
+      toast({
+        title: 'Ação realizada com sucesso!',
+      });
       navigate(-1);
     } catch (error: any) {
       alert(error.message);
@@ -104,7 +110,7 @@ const BaiaFormPage = () => {
               <FormItem>
                 <FormLabel>Número da Baia</FormLabel>
                 <FormControl>
-                  <Input placeholder="Número da baia" {...field} />
+                  <Input placeholder="Número da baia" {...field} type="number" />
                 </FormControl>
                 <FormMessage />
               </FormItem>

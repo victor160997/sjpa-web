@@ -11,6 +11,7 @@ import { useApp } from '@/contexts/AppContext';
 import { Switch } from '@/components/ui/switch';
 import { TipoAnimal, Genero } from '@/types';
 import { useEffect, useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 const formSchema = z.object({
   nome: z.string().min(1, 'Nome é obrigatório'),
@@ -26,14 +27,16 @@ type AnimalFormData = z.infer<typeof formSchema>;
 const AnimalFormPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { 
-    animais, 
-    addAnimal, 
-    updateAnimal, 
+  const {
+    animais,
+    addAnimal,
+    updateAnimal,
     currentCheck,
     checkAnimal
   } = useApp();
   const [isChecked, setIsChecked] = useState(false);
+
+  const { toast } = useToast();
 
   const animal = animais.find(a => a.id === id);
 
@@ -57,10 +60,10 @@ const AnimalFormPage = () => {
 
   const handleCheck = async () => {
     if (!animal) return;
-    
+
     const newChecked = !isChecked;
     setIsChecked(newChecked);
-    
+
     if (newChecked) {
       await checkAnimal(animal.id!);
     }
@@ -79,7 +82,7 @@ const AnimalFormPage = () => {
         idBaia: animal?.idBaia || null,
       };
 
-      if (id) {
+      if (id !== "novo") {
         await updateAnimal(id, animalData);
       } else {
         const urlParams = new URLSearchParams(window.location.search);
@@ -92,6 +95,9 @@ const AnimalFormPage = () => {
           idBaia: baiaId || null,
         });
       }
+      toast({
+        title: 'Ação realizada com sucesso!',
+      });
       navigate(-1);
     } catch (error: any) {
       alert(error.message);
@@ -196,7 +202,7 @@ const AnimalFormPage = () => {
               </FormItem>
             )}
           />
-          
+
           {currentCheck && (
             <div className="flex items-center space-x-4 mb-4">
               <Switch
@@ -204,13 +210,13 @@ const AnimalFormPage = () => {
                 onCheckedChange={handleCheck}
               />
               <span className="text-sm">
-                {isChecked 
-                  ? `Checado em ${currentCheck.check}` 
+                {isChecked
+                  ? `Checado em ${currentCheck.check}`
                   : 'Não Checado'}
               </span>
             </div>
           )}
-          
+
           <div className="flex justify-end space-x-2">
             <Button variant="outline" onClick={() => navigate(-1)}>
               Cancelar

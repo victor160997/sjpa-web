@@ -1,13 +1,13 @@
 
-import { 
-  collection, 
-  doc, 
-  getDocs, 
-  getDoc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
+import {
+  collection,
+  doc,
+  getDocs,
+  getDoc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  query,
   where,
   serverTimestamp
 } from 'firebase/firestore';
@@ -34,7 +34,7 @@ export const animalService = {
 
   // Obter animais por setor
   getBySetor: async (setorId: string) => {
-    const q = query(collection(db, 'animais'), where('idSetor', '==', setorId), where('idBaia', '==', null));
+    const q = query(collection(db, 'animais'), where('idSetor', '==', setorId));
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Animal));
   },
@@ -51,7 +51,7 @@ export const animalService = {
     // Verificar se o nome já existe para evitar duplicatas
     const q = query(collection(db, 'animais'), where('nome', '==', animal.nome));
     const snapshot = await getDocs(q);
-    
+
     if (!snapshot.empty) {
       throw new Error('Já existe um animal com esse nome');
     }
@@ -107,12 +107,12 @@ export const baiaService = {
   add: async (baia: Omit<Baia, 'id'>) => {
     // Verificar se já existe uma baia com o mesmo número no mesmo setor
     const q = query(
-      collection(db, 'baias'), 
+      collection(db, 'baias'),
       where('idSetor', '==', baia.idSetor),
       where('numeroBaia', '==', baia.numeroBaia)
     );
     const snapshot = await getDocs(q);
-    
+
     if (!snapshot.empty) {
       throw new Error('Já existe uma baia com esse número neste setor');
     }
@@ -138,7 +138,7 @@ export const baiaService = {
     if (animais.length > 0) {
       throw new Error('Não é possível excluir uma baia com animais');
     }
-    
+
     const docRef = doc(db, 'baias', id);
     await deleteDoc(docRef);
     return true;
@@ -168,7 +168,7 @@ export const setorService = {
     // Verificar se já existe um setor com o mesmo nome
     const q = query(collection(db, 'setores'), where('nome', '==', setor.nome));
     const snapshot = await getDocs(q);
-    
+
     if (!snapshot.empty) {
       throw new Error('Já existe um setor com esse nome');
     }
@@ -195,12 +195,12 @@ export const setorService = {
     if (baias.length > 0) {
       throw new Error('Não é possível excluir um setor com baias');
     }
-    
+
     const animais = await animalService.getBySetor(id);
     if (animais.length > 0) {
       throw new Error('Não é possível excluir um setor com animais');
     }
-    
+
     const docRef = doc(db, 'setores', id);
     await deleteDoc(docRef);
     return true;
@@ -238,12 +238,12 @@ export const checkService = {
       timeZoneName: 'short'
     };
     const formattedDate = new Intl.DateTimeFormat('pt-BR', options).format(now);
-    
+
     const newCheck = {
       check: formattedDate,  // Store as a string instead of a timestamp object
       status: StatusChecagem.NAO_INICIADO
     };
-    
+
     const docRef = await addDoc(collection(db, 'checks'), newCheck);
     return { id: docRef.id, ...newCheck } as Check;
   },
@@ -266,13 +266,13 @@ export const checkService = {
   checkAnimal: async (animalId: string, checkId: string) => {
     const animalRef = doc(db, 'animais', animalId);
     await updateDoc(animalRef, { lastCheck: checkId });
-    
+
     // Atualizar status da checagem para "em andamento" se for a primeira checagem
     const check = await checkService.getById(checkId);
     if (check && check.status === StatusChecagem.NAO_INICIADO) {
       await checkService.updateStatus(checkId, StatusChecagem.EM_ANDAMENTO);
     }
-    
+
     return true;
   },
 
@@ -280,7 +280,7 @@ export const checkService = {
   isBaiaChecked: async (baiaId: string, checkId: string) => {
     const animais = await animalService.getByBaia(baiaId);
     if (animais.length === 0) return true;
-    
+
     return animais.every(animal => animal.lastCheck === checkId);
   },
 
@@ -289,28 +289,28 @@ export const checkService = {
     // Verificar animais no setor (não em baias)
     const animaisNoSetor = await animalService.getBySetor(setorId);
     const animaisSetorChecked = animaisNoSetor.every(animal => animal.lastCheck === checkId);
-    
+
     // Verificar animais nas baias do setor
     const baias = await baiaService.getBySetor(setorId);
-    const baiasChecked = await Promise.all(baias.map(baia => 
+    const baiasChecked = await Promise.all(baias.map(baia =>
       checkService.isBaiaChecked(baia.id!, checkId)
     ));
-    
+
     return animaisSetorChecked && baiasChecked.every(checked => checked);
   },
 
   // Verificar se todos os setores foram checados
   isAllSetoresChecked: async (checkId: string) => {
     const setores = await setorService.getAll();
-    const setoresChecked = await Promise.all(setores.map(setor => 
+    const setoresChecked = await Promise.all(setores.map(setor =>
       checkService.isSetorChecked(setor.id!, checkId)
     ));
-    
+
     const allChecked = setoresChecked.every(checked => checked);
     if (allChecked) {
       await checkService.updateStatus(checkId, StatusChecagem.CONCLUIDO);
     }
-    
+
     return allChecked;
   },
 };

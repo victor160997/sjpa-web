@@ -8,12 +8,13 @@ import { useEffect, useState } from 'react';
 
 const SetoresPage = () => {
   const navigate = useNavigate();
-  const { setores, loading, fetchBaias, baias, currentCheck, isSetorChecked } = useApp();
+  const { setores, loading, fetchBaias, fetchAnimais, baias, animais, currentCheck, isSetorChecked } = useApp();
   const [setoresStatus, setSetoresStatus] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
     const fetchData = async () => {
       await fetchBaias();
+      await fetchAnimais();
       if (currentCheck) {
         const status: { [key: string]: boolean } = {};
         for (const setor of setores) {
@@ -42,10 +43,10 @@ const SetoresPage = () => {
       ) : (
         <div className="grid gap-4">
           {setores.map((setor) => {
-            const animalBaiasCount = baias
-              .filter((baia) => baia.idSetor === setor.id)
-              .map((baia) => baia.animais)
-              .reduce((acc, animais) => acc + (animais?.length || 0), 0);
+            const animalCount = animais
+              .filter((animal) => animal.idSetor === setor.id)
+
+            const baiasCount = baias.filter((baia) => baia.idSetor === setor.id);
 
             return (
               <Card
@@ -69,8 +70,8 @@ const SetoresPage = () => {
                 </CardHeader>
                 <CardContent className="p-4 pt-0">
                   <p className="text-sm text-gray-600">
-                    {(setor.animais?.length || 0) + animalBaiasCount} animais •{' '}
-                    {setor.baias?.length || 0} baias
+                    {animalCount.length} animais •{' '}
+                    {baiasCount.length || 0} baias
                   </p>
                   {setor.observacao && (
                     <p className="text-sm text-gray-500 mt-2">{setor.observacao}</p>
