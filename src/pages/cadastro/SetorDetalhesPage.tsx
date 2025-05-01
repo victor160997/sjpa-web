@@ -68,7 +68,7 @@ const SetorDetalhesPage = () => {
                 <Card
                   key={baia.id}
                   className="cursor-pointer hover:bg-gray-50"
-                  onClick={() => navigate(`/cadastro/baia/${baia.id}`)}
+                  onClick={() => navigate(`/cadastro/baia/${baia.id}/detalhes`)}
                 >
                   <CardHeader className="p-4">
                     <CardTitle className="text-lg">

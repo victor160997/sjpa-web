@@ -9,13 +9,13 @@ import { useEffect, useState } from 'react';
 const SetoresPage = () => {
   const navigate = useNavigate();
   const { setores, loading, fetchBaias, baias, currentCheck, isSetorChecked } = useApp();
-  const [setoresStatus, setSetoresStatus] = useState<{[key: string]: boolean}>({});
+  const [setoresStatus, setSetoresStatus] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
     const fetchData = async () => {
       await fetchBaias();
       if (currentCheck) {
-        const status: {[key: string]: boolean} = {};
+        const status: { [key: string]: boolean } = {};
         for (const setor of setores) {
           if (setor.id) {
             status[setor.id] = await isSetorChecked(setor.id);
@@ -51,7 +51,7 @@ const SetoresPage = () => {
               <Card
                 key={setor.id}
                 className="cursor-pointer hover:bg-gray-50"
-                onClick={() => navigate(`setores/${setor.id}`)}
+                onClick={() => navigate(`setores/${setor.id}/detalhes`)}
               >
                 <CardHeader className="p-4">
                   <div className="flex justify-between items-center">

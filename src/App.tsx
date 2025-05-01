@@ -45,13 +45,13 @@ const App = () => (
               <Route path="/cadastro" element={<RequireAuth><MainLayout /></RequireAuth>}>
                 <Route index element={<SetoresPage />} />
                 <Route path="setores" element={<SetoresPage />} />
-                {/* <Route path="setores/novo" element={<SetorFormPage />} /> */}
-                <Route path="setores/:id" element={<SetorDetalhesPage />} />
+                <Route path="setores/:id/detalhes" element={<SetorDetalhesPage />} />
                 <Route path="setores/:id/editar" element={<SetorFormPage />} />
-                {/* <Route path="baias/novo" element={<BaiaFormPage />} /> */}
+                <Route path="setores/:id" element={<SetorFormPage />} />
+
                 <Route path="baias/:id" element={<BaiaFormPage />} />
                 <Route path="baias/:id/editar" element={<BaiaFormPage />} />
-                <Route path="baia/:id" element={<BaiaDetalhesPage />} />
+                <Route path="baia/:id/detalhes" element={<BaiaDetalhesPage />} />
                 {/* <Route path="animais/novo" element={<AnimalFormPage />} /> */}
                 <Route path="animais/:id" element={<AnimalFormPage />} />
                 <Route path="animais/:id/detalhes" element={<AnimalDetalhesPage />} />
